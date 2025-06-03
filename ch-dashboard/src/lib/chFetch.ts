@@ -1,4 +1,3 @@
-// src/lib/chFetch.ts
 export async function chFetch(path: string) {
   const key = process.env.CH_API_KEY
   const res = await fetch(`https://api.company-information.service.gov.uk${path}`, {

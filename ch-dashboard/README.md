@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Company House Dashboard
 
-## Getting Started
+Real-time monitoring system for UK company changes with Next.js 14.
 
-First, run the development server:
+## Features
 
+- 📊 Company profile monitoring
+- 📑 Filing history with PDF downloads
+- 👥 Officer role tracking & history
+- 🔄 Real-time updates with SWR
+- 📱 Responsive grid layout
+- ⚡ ISR Caching (10-minute revalidation)
+
+## API Routes
+
+### Company Endpoints
+
+| Route                                | Method | Description                          |
+|--------------------------------------|--------|--------------------------------------|
+| `/api/company/[number]`             | GET    | Company profile data                 |
+| `/api/company/[number]/officers`    | GET    | List of company officers             |
+| `/api/company/[number]/filings`     | GET    | Filing history with metadata         |
+| `/api/company/[number]/filings/[transaction_id]/document` | GET | PDF document download |
+
+### Officer Endpoints
+
+| Route                                | Method | Description                          |
+|--------------------------------------|--------|--------------------------------------|
+| `/api/officer/[id]/appointments`    | GET    | Officer's company appointments       |
+
+### Document Endpoints
+
+| Route                  | Method | Query Params | Description              |
+|------------------------|--------|--------------|--------------------------|
+| `/api/document`        | GET    | `metaPath`   | Fetch document metadata  |
+
+## 🛠️ Setup Instructions
+
+1. **Environment Variables**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# .env
+CH_API_KEY="your_company_house_key"
+COMPANY_NUMBER="12345678"  # Default company to track
+NEXT_PUBLIC_POLL_INTERVAL="600000"  # 10 minutes (milliseconds)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Install Dependencies**
+```bash
+npm install
+# Key dependencies: next, react, swr, @vercel/geist
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Development Server**
+```bash
+npm run dev
+```
+Access at `http://localhost:3000`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. **Production Build**
+```bash
+npm run build && npm start
+```
 
-## Learn More
+## API Usage Examples
 
-To learn more about Next.js, take a look at the following resources:
+**Get Company Profile**
+```javascript
+const { data } = useSWR(`/api/company/12345678`, fetcher);
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Download Filing PDF**
+```javascript
+const downloadPdf = async (transactionId) => {
+  const res = await fetch(`/api/company/12345678/filings/${transactionId}/document`);
+  const blob = await res.blob();
+  // Handle PDF download...
+};
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Get Officer Appointments**
+```javascript
+const { data } = useSWR(
+  `/api/officer/o7x4yEaZRq6HlQ8vGbN3/appointments`,
+  fetcher
+);
+```
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Vercel is the recommended deployment platform:
+```bash
+1. Connect your GitHub/GitLab repository
+2. Add environment variables in Vercel dashboard
+3. Enable ISR (Incremental Static Regeneration)
+4. Deploy!
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Troubleshooting
+
+**Common Issues**
+- 🔑 `CH_API_KEY not found`: Verify `.env` file is in root directory
+- 📄 PDF Download Failures: Check document_metadata endpoint availability
+- 🔄 Stale Data: Ensure `NEXT_PUBLIC_POLL_INTERVAL` matches backend
+- 🛑 CORS Errors: Only occurs in production - configure CORS in Vercel
+
+**Cache Management**
+```javascript
+// Force refresh all company data
+mutate(/^\/api\/company/);
+```
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-repo%2Fch-dashboard)

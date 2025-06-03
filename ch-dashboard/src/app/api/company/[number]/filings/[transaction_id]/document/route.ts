@@ -1,4 +1,3 @@
-// src/app/api/company/[number]/filings/[transaction_id]/document/route.ts
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { chFetch } from "@/lib/chFetch"
@@ -11,13 +10,11 @@ export async function GET(
   const { number, transaction_id } = await context.params
 
   // 2) Fetch the specific filing metadata
-  //    This gives us the `links.document_metadata` URL
   const filingMeta = await chFetch(
     `/company/${number}/filing-history/${transaction_id}`
   )
 
   // 3) Fetch the metadata object to discover the true document URL
-  //    (Some endpoints return a full URL in links.document)
   const metaPath = new URL(
     filingMeta.links.document_metadata,
     "https://api.company-information.service.gov.uk"
@@ -47,7 +44,6 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      // Let the browser download it with a sensible default name.
       "Content-Disposition": `attachment; filename="${transaction_id}.pdf"`,
     },
   })

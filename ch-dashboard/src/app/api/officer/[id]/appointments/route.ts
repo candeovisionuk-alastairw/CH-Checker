@@ -1,4 +1,3 @@
-// src/app/api/officer/[id]/appointments/route.ts
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { chFetch } from '@/lib/chFetch'
